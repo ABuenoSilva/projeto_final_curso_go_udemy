@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"backend/src/autenticacao"
 	"backend/src/banco"
 	"backend/src/modelos"
 	"backend/src/repositorios"
@@ -104,6 +105,16 @@ func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usuarioIDNoToken, erro := autenticacao.ExtrairUsuarioID(r)
+	if erro != nil {
+		respostas.ResponderErro(w, http.StatusUnauthorized, "Usuário não autorizado: ", erro.Error())
+	}
+
+	if usuarioID != usuarioIDNoToken {
+		respostas.ResponderErro(w, http.StatusForbidden, "Operação não permitida: ", "Não é possível atualizar um usuário que não seja o seu")
+		return
+	}
+
 	corpoRequest, erro := io.ReadAll(r.Body)
 	if erro != nil {
 		respostas.ResponderErro(w, http.StatusBadRequest, "Erro ao ler o body: ", erro.Error())
@@ -143,6 +154,16 @@ func ExcluirUsuario(w http.ResponseWriter, r *http.Request) {
 	usuarioID, erro := strconv.ParseUint(parametros["id"], 10, 32)
 	if erro != nil {
 		respostas.ResponderErro(w, http.StatusBadRequest, "Erro ao converter o parâmetro: ", erro.Error())
+		return
+	}
+
+	usuarioIDNoToken, erro := autenticacao.ExtrairUsuarioID(r)
+	if erro != nil {
+		respostas.ResponderErro(w, http.StatusUnauthorized, "Usuário não autorizado: ", erro.Error())
+	}
+
+	if usuarioID != usuarioIDNoToken {
+		respostas.ResponderErro(w, http.StatusForbidden, "Operação não permitida: ", "Não é possível excluir um usuário que não seja o seu")
 		return
 	}
 
