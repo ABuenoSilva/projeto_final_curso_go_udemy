@@ -2,7 +2,6 @@ package repositorios
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"backend/src/modelos"
@@ -11,8 +10,6 @@ import (
 type usuarios struct {
 	db *sql.DB
 }
-
-var ErrNenhumRegistroEncontrado = errors.New("Nenhum registro foi afetado!")
 
 func NovoRepositorioDeUsuarios(db *sql.DB) *usuarios {
 	return &usuarios{db}
